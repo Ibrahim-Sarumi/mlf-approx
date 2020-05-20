@@ -63,6 +63,4 @@ def gpa8_13_4_ml(x, alf, bet):
     
     denum = coeff[7,0] + coeff[8,0]*x + coeff[9,0]*(x**2) + coeff[10,0]*(x**3) + coeff[11,0]*(x**4) + coeff[12,0]*(x**5) + coeff[13,0]*(x**6) + coeff[14,0]*(x**7) + (x**8)
     
-    return num/(gamma(bet-alf)*denum)    
-
-print(gpa8_13_4_ml_pf(0.5, 1))
+    return num/(gamma(bet-alf)*denum)   
