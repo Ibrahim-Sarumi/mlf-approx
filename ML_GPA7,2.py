@@ -11,7 +11,8 @@ Reference: Sarumi, Ibrahim O. and Furati, Khaled M. and Khaliq, Abdul Q. M.
            J Sci Comput, 2020
 '''
 import numpy as np
-import scipy.special as ss
+from scipy.special import  gamma
+from scipy.signal import residue
     
 def gpa_72aa(z,alf):
     '''
@@ -30,12 +31,12 @@ def gpa_72aa(z,alf):
         positive number in (0, 1)
     '''
     z = np.abs(z) # This line ensure that z is positive. Keep in mind, we seek E_{\alpha, \beta}(-z)
-    a = ss.gamma(-alf)/(ss.gamma(alf))
-    b = ss.gamma(-alf)/(ss.gamma(2*alf))
-    c = ss.gamma(-alf)/(ss.gamma(3*alf))
-    d = ss.gamma(-alf)/(ss.gamma(4*alf))
-    e = ss.gamma(-alf)/ss.gamma(5*alf)
-    f = ss.gamma(-alf)/ss.gamma(-2*alf)
+    a = gamma(-alf)/gamma(alf)
+    b = gamma(-alf)/gamma(2*alf)
+    c = gamma(-alf)/gamma(3*alf)
+    d = gamma(-alf)/gamma(4*alf)
+    e = gamma(-alf)/gamma(5*alf)
+    f = gamma(-alf)/gamma(-2*alf)
     
     p2 = a*(a**4 - 2*a**2*c - a**2*d*f + 2*a*b**2 + 2*a*b*c*f - b**3*f - b*d + 
     c**2)/(a**3*e - 2*a**2*b*d - a**2*c**2 + 3*a*b**2*c - a*c*e + a*d**2 - b**4 
@@ -64,7 +65,7 @@ def gpa_72aa(z,alf):
     
     num = p2 + p3*z + z**2
     
-    denum = -ss.gamma(-alf)*(q0+q1*z+q2*(z**2)+q3*(z**3)+(z**4))
+    denum = -gamma(-alf)*(q0+q1*z+q2*(z**2)+q3*(z**3)+(z**4))
     return num/denum
     
 def gpa_72(z, alf, bet):
@@ -91,13 +92,13 @@ def gpa_72(z, alf, bet):
     if alf < 1 and alf == bet:
         return gpa_72aa(z,alf)
     
-    a = ss.gamma(bet-alf)/ss.gamma(bet)
-    b = ss.gamma(bet-alf)/ss.gamma(bet+alf)
-    c = ss.gamma(bet-alf)/ss.gamma(bet+2*alf)
-    d = ss.gamma(bet-alf)/ss.gamma(bet+3*alf)
-    e = ss.gamma(bet-alf)/ss.gamma(bet+4*alf)
-    f = ss.gamma(bet-alf)/ss.gamma(bet+5*alf)
-    g = ss.gamma(bet-alf)/ss.gamma(bet-2*alf)
+    a = gamma(bet-alf)/gamma(bet)
+    b = gamma(bet-alf)/gamma(bet+alf)
+    c = gamma(bet-alf)/gamma(bet+2*alf)
+    d = gamma(bet-alf)/gamma(bet+3*alf)
+    e = gamma(bet-alf)/gamma(bet+4*alf)
+    f = gamma(bet-alf)/gamma(bet+5*alf)
+    g = gamma(bet-alf)/gamma(bet-2*alf)
     
     p1 = a*(a**3*e - 2*a**2*b*d - a**2*c**2 + 3*a*b**2*c - 2*a*b*e + 2*a*c*d - 
     a*c*e*g + a*d**2*g - b**4 + 2*b**2*d + b**2*e*g - 2*b*c**2 - 2*b*c*d*g + 
@@ -150,17 +151,35 @@ def gpa_72(z, alf, bet):
     
     num = p1 + p2*z + p3*(z**2) + z**3
     
-    denum = ss.gamma(bet-alf)*(q0+q1*z+q2*(z**2)+q3*(z**3)+(z**4))
+    denum = gamma(bet-alf)*(q0+q1*z+q2*(z**2)+q3*(z**3)+(z**4))
     
     return num/denum    
 
 def gpa_72aa_pf(alf):
-    a = ss.gamma(-alf)/(ss.gamma(alf))
-    b = ss.gamma(-alf)/(ss.gamma(2*alf))
-    c = ss.gamma(-alf)/(ss.gamma(3*alf))
-    d = ss.gamma(-alf)/(ss.gamma(4*alf))
-    e = ss.gamma(-alf)/ss.gamma(5*alf)
-    f = ss.gamma(-alf)/ss.gamma(-2*alf)
+    '''
+    This code computes the residues (weights) and poles of the partial fraction 
+    decomposition of the global Pad\'e approximant, type (7,2) for \alpha = \beta.
+    
+    Signature: gpa_72aa_pf(alf)
+               
+    Parameters: alf 
+                positive number in (0, 1)
+    
+    Returns: r : ndarray
+                 Residues (or Weights).
+             p : ndarray
+                 Poles
+         The partial fraction decomposition can be assumed to take the form
+         r[0]       r[1]        r[2]         r[3]
+       -------- + -------- +  ---------  + ---------
+       (s-p[0])   (s-p[1])    (s-p[2])     (s-p[3])  
+    '''
+    a = gamma(-alf)/gamma(alf)
+    b = gamma(-alf)/gamma(2*alf)
+    c = gamma(-alf)/gamma(3*alf)
+    d = gamma(-alf)/gamma(4*alf)
+    e = gamma(-alf)/gamma(5*alf)
+    f = gamma(-alf)/gamma(-2*alf)
     
     p2 = a*(a**4 - 2*a**2*c - a**2*d*f + 2*a*b**2 + 2*a*b*c*f - b**3*f - b*d + 
     c**2)/(a**3*e - 2*a**2*b*d - a**2*c**2 + 3*a*b**2*c - a*c*e + a*d**2 - b**4 
@@ -187,21 +206,39 @@ def gpa_72aa_pf(alf):
     f*(-a*c*e + a*d**2 + b**2*e - 2*b*c*d + c**3))/(a**3*e - 2*a**2*b*d - 
     a**2*c**2 + 3*a*b**2*c - a*c*e + a*d**2 - b**4 + b**2*e - 2*b*c*d + c**3)
     
-    return si.residue([0,0,1,p3,p2],[-ss.gamma(-alf), -ss.gamma(-alf)*q3, 
-    -ss.gamma(-alf)*q2, -ss.gamma(-alf)*q1, -ss.gamma(-alf)*q0])
+    return residue([0,0,1,p3,p2],[-gamma(-alf), -gamma(-alf)*q3, 
+    -gamma(-alf)*q2, -gamma(-alf)*q1, -gamma(-alf)*q0])
 
     
 def gpa_72_pf(alf, bet):
+    '''
+    This code computes the residues (weights) and poles of the partial fraction 
+    decomposition of the global Pad\'e approximant, type (7,2), for \alpha < \beta.
+    
+    Signature: gpa_72_pf(alf, bet)
+               
+    Parameters: alf 
+                positive number in (0, 1]
+    
+    Returns: r : ndarray
+                 Residues (or Weights).
+             p : ndarray
+                 Poles
+         The partial fraction decomposition can be assumed to take the form
+         r[0]       r[1]        r[2]         r[3]
+       -------- + -------- +  ---------  + ---------
+       (s-p[0])   (s-p[1])    (s-p[2])     (s-p[3])  
+    '''
     if alf < 1 and alf == bet:
         return gpa_72aa(alf)
     
-    a = ss.gamma(bet-alf)/ss.gamma(bet)
-    b = ss.gamma(bet-alf)/ss.gamma(bet+alf)
-    c = ss.gamma(bet-alf)/ss.gamma(bet+2*alf)
-    d = ss.gamma(bet-alf)/ss.gamma(bet+3*alf)
-    e = ss.gamma(bet-alf)/ss.gamma(bet+4*alf)
-    f = ss.gamma(bet-alf)/ss.gamma(bet+5*alf)
-    g = ss.gamma(bet-alf)/ss.gamma(bet-2*alf)
+    a = gamma(bet-alf)/gamma(bet)
+    b = gamma(bet-alf)/gamma(bet+alf)
+    c = gamma(bet-alf)/gamma(bet+2*alf)
+    d = gamma(bet-alf)/gamma(bet+3*alf)
+    e = gamma(bet-alf)/gamma(bet+4*alf)
+    f = gamma(bet-alf)/gamma(bet+5*alf)
+    g = gamma(bet-alf)/gamma(bet-2*alf)
     
     p1 = a*(a**3*e - 2*a**2*b*d - a**2*c**2 + 3*a*b**2*c - 2*a*b*e + 2*a*c*d - 
     a*c*e*g + a*d**2*g - b**4 + 2*b**2*d + b**2*e*g - 2*b*c**2 - 2*b*c*d*g + 
@@ -252,5 +289,5 @@ def gpa_72_pf(alf, bet):
     b**3*f - 2*b**2*c*e - b**2*d**2 + 3*b*c**2*d - b*d*f + b*e**2 - c**4 + 
     c**2*f - 2*c*d*e + d**3)
     
-    return si.residue([0,1,p3,p2,p1],[ss.gamma(bet-alf), ss.gamma(bet-alf)*q3, 
-    ss.gamma(bet-alf)*q2, ss.gamma(bet-alf)*q1, ss.gamma(bet-alf)*q0])
+    return residue([0,1,p3,p2,p1],[gamma(bet-alf), gamma(bet-alf)*q3, 
+    gamma(bet-alf)*q2, gamma(bet-alf)*q1, gamma(bet-alf)*q0])
